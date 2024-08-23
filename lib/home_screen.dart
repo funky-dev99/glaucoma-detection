@@ -12,7 +12,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   File? _selectedImage;
   String _predictionResult = '';
+  double? _probabilityPercentage;
   bool _isLoading = false;  // This will track the loading state
+  String _errorMessage = '';  // This will track the error message
 
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
@@ -21,18 +23,26 @@ class _HomePageState extends State<HomePage> {
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
-        _predictionResult = '';  // Clear the previous prediction result
+        _predictionResult = '';
+        _probabilityPercentage = null;
+        _errorMessage = '';
       });
     }
   }
 
   Future<void> _testGlaucoma() async {
-    if (_selectedImage == null) return;
+    if (_selectedImage == null) {
+      setState(() {
+        _errorMessage = 'Please select an image before testing.';
+      });
+      return;
+    }
 
     String uploadUrl = 'http://13.53.57.205:8000/predict/';
 
     setState(() {
       _isLoading = true;  // Show loading indicator
+      _errorMessage = '';  // Clear any previous error messages
     });
 
     try {
@@ -46,6 +56,7 @@ class _HomePageState extends State<HomePage> {
         final decodedResp = json.decode(respStr);
         setState(() {
           _predictionResult = decodedResp['prediction'] ?? 'No prediction available';
+          _probabilityPercentage = decodedResp['probability_percentage']?.toDouble();
           _isLoading = false;
         });
       } else {
@@ -155,6 +166,7 @@ class _HomePageState extends State<HomePage> {
                   setState(() {
                     _selectedImage = null;
                     _predictionResult = '';
+                    _probabilityPercentage = null;
                   });
                 },
                 child: const Text('Remove Image'),
@@ -165,17 +177,42 @@ class _HomePageState extends State<HomePage> {
                     ? CircularProgressIndicator(color: Colors.white)  // Show loading indicator
                     : const Text('Test Glaucoma'),
               ),
-              if (_predictionResult.isNotEmpty)
+              if (_errorMessage.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    'Prediction: $_predictionResult',
+                    _errorMessage,
                     style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                      fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
+                  ),
+                ),
+              if (_predictionResult.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Prediction: $_predictionResult',
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (_probabilityPercentage != null)
+                        Text(
+                          'Probability: ${_probabilityPercentage!.toStringAsFixed(2)}%',
+                          style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontSize: 18,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                    ],
                   ),
                 ),
             ],
