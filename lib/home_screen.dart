@@ -77,10 +77,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.pink.shade50,
         appBar: AppBar(
+          backgroundColor: Colors.pink.shade100,
           title: const Center(
             child: Text(
-              'Glaucoma Detection',
+              'Diagnosing Glaucoma',
               style: TextStyle(
                   color: Colors.indigo,
                   fontSize: 22,
@@ -174,7 +176,7 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _testGlaucoma,  // Disable the button if loading
                 child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white)  // Show loading indicator
+                    ? const CircularProgressIndicator(color: Colors.white)  // Show loading indicator
                     : const Text('Test Glaucoma'),
               ),
               if (_errorMessage.isNotEmpty)
@@ -182,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     _errorMessage,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.red,
                       fontSize: 16,
                     ),
@@ -196,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Text(
                         'Prediction: $_predictionResult',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.redAccent,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -206,7 +208,7 @@ class _HomePageState extends State<HomePage> {
                       if (_probabilityPercentage != null)
                         Text(
                           'Probability: ${_probabilityPercentage!.toStringAsFixed(2)}%',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.blueAccent,
                             fontSize: 18,
                           ),
